@@ -1,20 +1,20 @@
 {
-    "name": "yiisoft/yii2-gii",
+    "name": "zc/yii2-zii",
     "description": "The Gii extension for the Yii framework",
     "keywords": ["yii2", "gii", "code generator"],
     "type": "yii2-extension",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/yii2-gii/issues",
+        "issues": "https://github.com/davidfang/yii2-zii/issues",
         "forum": "http://www.yiiframework.com/forum/",
         "wiki": "http://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
-        "source": "https://github.com/yiisoft/yii2-gii"
+        "source": "https://github.com/davidfang/yii2-zii"
     },
     "authors": [
         {
-            "name": "Qiang Xue",
-            "email": "qiang.xue@gmail.com"
+            "name": "David",
+            "email": "fangmw@gmail.com"
         }
     ],
     "minimum-stability": "dev",
@@ -26,7 +26,7 @@
     },
     "autoload": {
         "psr-4": {
-            "yii\\gii\\": ""
+            "zc\\gii\\": ""
         }
     },
     "extra": {
