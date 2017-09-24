@@ -12,6 +12,10 @@ echo $form->field($generator, 'ns');
 echo $form->field($generator, 'baseClass');
 echo $form->field($generator, 'db');
 echo $form->field($generator, 'useTablePrefix')->checkbox();
+echo $form->field($generator, 'tableClumnSelect')->checkbox();
+foreach ($generator->generateClumnOptions() as $table => $clumnOption) {
+    echo $form->field($generator, "tableClumnOptions[$table]")->checkboxList($clumnOption);
+}
 echo $form->field($generator, 'generateRelations')->dropDownList([
     Generator::RELATIONS_NONE => 'No relations',
     Generator::RELATIONS_ALL => 'All relations',

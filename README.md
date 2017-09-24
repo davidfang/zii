@@ -42,7 +42,11 @@ Usage
 -----
 
 Once the extension is installed, simply modify your application configuration as follows:
-
+```php
+$config["aliases"] = [
+        "@yii/gii" => "@vendor/zc/yii2-zii",
+    ];
+```
 ```php
 return [
     'bootstrap' => ['gii'],

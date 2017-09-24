@@ -48,6 +48,7 @@ class DefaultController extends Controller
             if ($generator->validate()) {
                 $generator->saveStickyAttributes();
                 $files = $generator->generate();
+                $params['clumnOptions'] = $generator->generateClumnOptions();
                 if ($generate !== null && !empty($answers)) {
                     $params['hasError'] = !$generator->save($files, (array) $answers, $results);
                     $params['results'] = $results;

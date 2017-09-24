@@ -38,6 +38,8 @@ class Generator extends \yii\gii\Generator
     public $generateRelationsFromCurrentSchema = true;
     public $generateLabelsFromComments = false;
     public $useTablePrefix = false;
+    public $tableClumnSelect = false;
+    public $tableClumnOptions = [];
     public $useSchemaName = true;
     public $generateQuery = false;
     public $queryNs = 'app\models';
@@ -68,7 +70,9 @@ class Generator extends \yii\gii\Generator
     {
         return array_merge(parent::rules(), [
             [['db', 'ns', 'tableName', 'modelClass', 'baseClass', 'queryNs', 'queryClass', 'queryBaseClass'], 'filter', 'filter' => 'trim'],
-            [['ns', 'queryNs'], 'filter', 'filter' => function ($value) { return trim($value, '\\'); }],
+            [['ns', 'queryNs'], 'filter', 'filter' => function ($value) {
+                return trim($value, '\\');
+            }],
 
             [['db', 'ns', 'tableName', 'baseClass', 'queryNs', 'queryBaseClass'], 'required'],
             [['db', 'modelClass', 'queryClass'], 'match', 'pattern' => '/^\w+$/', 'message' => 'Only word characters are allowed.'],
@@ -106,6 +110,8 @@ class Generator extends \yii\gii\Generator
             'queryClass' => 'ActiveQuery Class',
             'queryBaseClass' => 'ActiveQuery Base Class',
             'useSchemaName' => 'Use Schema Name',
+            'tableClumnSelect' => '选择生成数据表列',
+            'tableClumnOptions' => '数据表列配置信息'
         ]);
     }
 
@@ -114,32 +120,74 @@ class Generator extends \yii\gii\Generator
      */
     public function hints()
     {
+        $hints = array(
+            "ns" => "这是要生成的ActiveRecord类的命名空间,例如<code> app\models </code>",
+            "db" => "这是DB应用程序组件的ID。",
+            "tableName" => "这是新的ActiveRecord类关联的数据库表的名称,例如。 <code>交</code>。
+                如果需要,表名称可以由DB模式部分组成,例如。 <code> public.post </code>。
+                表名可能以星号结尾,以匹配多个表名称,例如<code> TBL _ * </code>
+                将匹配名称以<code> tbl _ </code>开头的表。在这种情况下,多个ActiveRecord类
+                将生成一个,每个匹配的表名称;并且将从生成类名
+                匹配的字符。例如,表<code> tbl_post </code>将生成<code> Post </code>
+                类。",
+            "modelClass" => "这是要生成的ActiveRecord类的名称。类名不应该包含
+                命名空间部分在“命名空间”中指定。您不需要指定类名称
+                如果“表名称”以星号结尾,则会生成多个ActiveRecord类。",
+            "baseClass" => "这是新的ActiveRecord类的基类。它应该是一个完全限定的名称空间的类名称",
+            "generateRelations" => "这指示生成器是否基于此生成关系
+                在数据库中检测到的外键约束。请注意,如果您的数据库包含太多表,
+                您可能需要取消选中此选项以加快代码生成过程。",
+            "generateRelationsFromCurrentSchema" => "这指示生成器是否应该从当前模式或所有可用模式生成关系。",
+            "generateLabelsFromComments" => "这指示生成器是否应生成属性标签
+                通过使用相应DB列的注释。",
+            "useTablePrefix" => "这指示生成的ActiveRecord类返回的表名
+                应该考虑DB连接的 < code> tablePrefix </code> 设置。例如,如果
+                表名是 <code> tbl_post </code> 和<code> tablePrefix = tbl _ </code>,ActiveRecord类
+                将返回表名称为 < code> {
+        {
+            ％
+            post}
+    } </code >。",
+            "useSchemaName" => "这指示是否在ActiveRecord类中包含模式名称
+                当它自动生成。只会使用非默认模式。",
+            "generateQuery" => "这指示是否为ActiveRecord类生成ActiveQuery。",
+            "queryNs" => "这是要生成的ActiveQuery类的命名空间,例如 < code> app \models </ code > ",
+            "queryClass" => "这是要生成的ActiveQuery类的名称。类名不应该包含在‘ActiveQuery命名空间’中指定的命名空间部分。您不需要指定类名称如果‘表名’以星号结尾,则会生成多个ActiveQuery类。",
+            "queryBaseClass" => "这是新的ActiveQuery类的基类。它应该是一个完全限定的名称空间的类名称",
+            'tableClumnSelect' => '选择生成数据表列',
+            'tableClumnOptions' => '数据表列配置信息'
+        );
+        return array_merge(parent::hints(), $hints);
         return array_merge(parent::hints(), [
-            'ns' => 'This is the namespace of the ActiveRecord class to be generated, e.g., <code>app\models</code>',
-            'db' => 'This is the ID of the DB application component.',
-            'tableName' => 'This is the name of the DB table that the new ActiveRecord class is associated with, e.g. <code>post</code>.
-                The table name may consist of the DB schema part if needed, e.g. <code>public.post</code>.
-                The table name may end with asterisk to match multiple table names, e.g. <code>tbl_*</code>
-                will match tables who name starts with <code>tbl_</code>. In this case, multiple ActiveRecord classes
+            'ns' => 'This is the namespace of the ActiveRecord class to be generated, e . g ., <code > app\models</code > ',
+            'db' => 'This is the ID of the DB application component . ',
+            'tableName' => 'This is the name of the DB table that the new ActiveRecord class is associated with, e . g . <code > post</code >.
+                The table name may consist of the DB schema part if needed, e . g . <code >public.post </code >.
+                The table name may end with asterisk to match multiple table names, e . g . <code > tbl_ *</code >
+    will match tables who name starts with < code>tbl_ </code >. In this case, multiple ActiveRecord classes
                 will be generated, one for each matching table name; and the class names will be generated from
-                the matching characters. For example, table <code>tbl_post</code> will generate <code>Post</code>
+                the matching characters . For example, table < code>tbl_post </code > will generate < code>Post </code >
                 class.',
-            'modelClass' => 'This is the name of the ActiveRecord class to be generated. The class name should not contain
-                the namespace part as it is specified in "Namespace". You do not need to specify the class name
-                if "Table Name" ends with asterisk, in which case multiple ActiveRecord classes will be generated.',
+            'modelClass' => 'This is the name of the ActiveRecord class to be generated . The class name should not contain
+                the namespace part as it is specified in "Namespace" . You do not need to specify the class name
+                if "Table Name" ends with asterisk, in which case multiple ActiveRecord classes will be generated . ',
             'baseClass' => 'This is the base class of the new ActiveRecord class. It should be a fully qualified namespaced class name.',
             'generateRelations' => 'This indicates whether the generator should generate relations based on
-                foreign key constraints it detects in the database. Note that if your database contains too many tables,
-                you may want to uncheck this option to accelerate the code generation process.',
-            'generateRelationsFromCurrentSchema' => 'This indicates whether the generator should generate relations from current schema or from all available schemas.',
+                foreign key constraints it detects in the database . Note that if your database contains too many tables,
+                you may want to uncheck this option to accelerate the code generation process . ',
+            'generateRelationsFromCurrentSchema' => 'This indicates whether the generator should generate relations from current schema or from all available schemas . ',
             'generateLabelsFromComments' => 'This indicates whether the generator should generate attribute labels
-                by using the comments of the corresponding DB columns.',
+                by using the comments of the corresponding DB columns . ',
             'useTablePrefix' => 'This indicates whether the table name returned by the generated ActiveRecord class
-                should consider the <code>tablePrefix</code> setting of the DB connection. For example, if the
-                table name is <code>tbl_post</code> and <code>tablePrefix=tbl_</code>, the ActiveRecord class
-                will return the table name as <code>{{%post}}</code>.',
+    should consider the < code>tablePrefix </code > setting of the DB connection . For example, if the
+    table name is < code>tbl_post </code > and <code > tablePrefix = tbl_ </code >, the ActiveRecord class
+    will return the table name as <code >{
+            {
+                %
+                post}
+        }</code >.',
             'useSchemaName' => 'This indicates whether to include the schema name in the ActiveRecord class
-                when it\'s auto generated. Only non default schema would be used.',
+    when it\'s auto generated. Only non default schema would be used.',
             'generateQuery' => 'This indicates whether to generate ActiveQuery for the ActiveRecord class.',
             'queryNs' => 'This is the namespace of the ActiveQuery class to be generated, e.g., <code>app\models</code>',
             'queryClass' => 'This is the name of the ActiveQuery class to be generated. The class name should not contain
@@ -242,6 +290,19 @@ class Generator extends \yii\gii\Generator
         return $files;
     }
 
+    /**
+     * 生成表列属性
+     *
+     */
+    public function generateClumnOptions(){
+        $tables = [];
+        $db = $this->getDbConnection();
+        foreach ($this->getTableNames() as $tableName) {
+            $tableSchema = $db->getTableSchema($tableName);
+            $tables[$tableName] = $this->generateLabels($tableSchema);
+        }
+        return $tables;
+    }
     /**
      * Generates the properties for the specified table.
      * @param \yii\db\TableSchema $table the table schema
@@ -577,10 +638,10 @@ class Generator extends \yii\gii\Generator
 
                     $relations[$table->fullName][$leftRelationName][0] =
                         rtrim($relations[$table->fullName][$leftRelationName][0], ';')
-                        . "->inverseOf('".lcfirst($rightRelationName)."');";
+                        . "->inverseOf('" . lcfirst($rightRelationName) . "');";
                     $relations[$refTableSchema->fullName][$rightRelationName][0] =
                         rtrim($relations[$refTableSchema->fullName][$rightRelationName][0], ';')
-                        . "->inverseOf('".lcfirst($leftRelationName)."');";
+                        . "->inverseOf('" . lcfirst($leftRelationName) . "');";
                 }
             }
         }
@@ -872,7 +933,7 @@ class Generator extends \yii\gii\Generator
             }
         }
 
-        return $this->classNames[$fullTableName] = Inflector::id2camel($schemaName.$className, '_');
+        return $this->classNames[$fullTableName] = Inflector::id2camel($schemaName . $className, '_');
     }
 
     /**

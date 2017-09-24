@@ -45,8 +45,8 @@ $asset = yii\gii\GiiAsset::register($this);
     </div>
     <footer class="footer">
         <div class="container">
-            <p class="pull-left">A Product of <a href="http://www.yiisoft.com/">Yii Software LLC</a></p>
-            <p class="pull-right"><?= Yii::powered() ?></p>
+            <p class="pull-left">zii生成器</p>
+            <p class="pull-right">技术支持 zc </p>
         </div>
     </footer>
 <?php $this->endBody() ?>
