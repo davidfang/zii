@@ -48,7 +48,7 @@ class DefaultController extends Controller
             if ($generator->validate()) {
                 $generator->saveStickyAttributes();
                 $files = $generator->generate();
-                $params['clumnOptions'] = $generator->generateClumnOptions();
+                $params['columnOptions'] = $generator->generateColumnOptions();
                 if ($generate !== null && !empty($answers)) {
                     $params['hasError'] = !$generator->save($files, (array) $answers, $results);
                     $params['results'] = $results;
@@ -127,7 +127,9 @@ class DefaultController extends Controller
             $this->generator = $this->module->generators[$id];
             $this->generator->loadStickyAttributes();
             $this->generator->load(Yii::$app->request->post());
-
+            //echo '<pre>';
+            //var_dump(Yii::$app->request->post());
+            //var_dump($this->generator);echo '</pre>';
             return $this->generator;
         } else {
             throw new NotFoundHttpException("Code generator not found: $id");

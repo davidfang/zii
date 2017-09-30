@@ -239,9 +239,13 @@ abstract class Generator extends Model
         $stickyAttributes = $this->stickyAttributes();
         $stickyAttributes[] = 'template';
         $values = [];
+        //echo '<pre>';
         foreach ($stickyAttributes as $name) {
+            //var_dump($this->$name);
             $values[$name] = $this->$name;
         }
+        //var_dump($stickyAttributes,$values);
+        //echo '</pre>';
         $path = $this->getStickyDataFile();
         @mkdir(dirname($path), 0755, true);
         file_put_contents($path, json_encode($values));

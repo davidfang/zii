@@ -27,3 +27,39 @@
 
 > 注意：Gii 生成的代码只是一个根据自己的需要进行调整的模板。 它可以帮助你快速创建新的代码，但它不是创建准备使用于正式项目的代码。我们经常看到人们使用 Gii 生成的 model 没有改变，只是通过扩展它们从而调整部分 model 的功能。 这不是我们编写它的初衷。 Gii 生成的代码可能不完整或不正确，必须根据自己的需要进行更改才能使用它。
   
+####model创建操作
+
+ * 预览
+ * 选择列的类型
+ * 选择列为 下拉，单选，复选时填写相关参数：(json格式)
+
+示例
+ ```json
+ [
+     {
+         "key": "AAAA",
+         "value": "aaaa",
+         "label": "aAaAaA"
+     },
+     {
+         "key": "BBBB",
+         "value": "bbbb",
+         "label": "bBbBbB"
+     }
+ ]
+ ```
+ 
+ ```json
+ [
+     {
+         "key": "cAAAA",
+         "value": "caaaa",
+         "label": "caAaAaA"
+     },
+     {
+         "key": "cBBBB",
+         "value": "cbbbb",
+         "label": "cbBbBbB"
+     }
+ ]
+ ```

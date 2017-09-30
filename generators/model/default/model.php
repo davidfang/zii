@@ -13,6 +13,8 @@
 /* @var $labels string[] list of attribute labels (name => label) */
 /* @var $rules string[] list of validation rules */
 /* @var $relations array list of relations (name => relation declaration) */
+/* @var $relations array list of relations (name => relation declaration) */
+/* @var $tableColumnOptions array list of attribute options (name => label)  */
 
 echo "<?php\n";
 ?>
@@ -36,6 +38,41 @@ use Yii;
  */
 class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
 {
+<?php if(!empty($tableColumnOptions)) {
+    foreach ($tableColumnOptions as $columnKey => $columnOption) {
+        if (in_array($columnOption['type'], ['radio', 'checkbox', 'dropDown'])) {
+            $params = empty($columnOption['params']) ? [] : json_decode($columnOption['params']);
+            //var_dump($columnOption['params'],$params);
+            foreach ($params as $paramKey => $paramValue) {
+                ?>
+    const <?= strtoupper($columnKey . '_' . $paramValue->key) ?> = '<?= $paramValue->value ?>';// <?= $paramValue->label."\n" ?>
+<?php
+            }
+        }
+    }
+}
+?>
+<?php if(!empty($tableColumnOptions)) {
+    foreach ($tableColumnOptions as $columnKey => $columnOption) {
+        if (in_array($columnOption['type'], ['radio', 'checkbox', 'dropDown'])) {
+            $params = empty($columnOption['params']) ? [] : json_decode($columnOption['params']);
+            ?>
+    /**
+     * @inheritdoc
+     */
+    public static function <?=\yii\helpers\Inflector::variablize($columnKey)?>Options()
+    {
+        return [
+<?php foreach ($params as $paramKey => $paramValue) {?>
+                self::<?= strtoupper($columnKey. '_' . $paramValue->key) ?> => '<?= $paramValue->label ?>',
+<?php }?>
+            ];
+    }
+<?php
+        }
+    }
+}
+?>
     /**
      * @inheritdoc
      */
@@ -97,4 +134,12 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
         return new <?= $queryClassFullName ?>(get_called_class());
     }
 <?php endif; ?>
+
+    /**
+     * 数据表字段属性
+     * @return array
+     */
+    public function columnOptions(){
+        return '<?php echo json_encode($tableColumnOptions) ?>';
+    }
 }
