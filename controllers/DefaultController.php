@@ -48,9 +48,11 @@ class DefaultController extends Controller
             if ($generator->validate()) {
                 $generator->saveStickyAttributes();
                 $files = $generator->generate();
-                $params['columnOptions'] = $generator->generateColumnOptions();
+                if(method_exists($generator,'generateColumnOptions')) {
+                    $params['columnOptions'] = $generator->generateColumnOptions();
+                }
                 if ($generate !== null && !empty($answers)) {
-                    $params['hasError'] = !$generator->save($files, (array) $answers, $results);
+                    $params['hasError'] = !$generator->save($files, (array)$answers, $results);
                     $params['results'] = $results;
                 } else {
                     $params['files'] = $files;

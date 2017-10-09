@@ -31,35 +31,48 @@
 
  * 预览
  * 选择列的类型
- * 选择列为 下拉，单选，复选时填写相关参数：(json格式)
-
-示例
- ```json
- [
-     {
-         "key": "AAAA",
-         "value": "aaaa",
-         "label": "aAaAaA"
-     },
-     {
-         "key": "BBBB",
-         "value": "bbbb",
-         "label": "bBbBbB"
-     }
- ]
- ```
- 
- ```json
- [
-     {
-         "key": "cAAAA",
-         "value": "caaaa",
-         "label": "caAaAaA"
-     },
-     {
-         "key": "cBBBB",
-         "value": "cbbbb",
-         "label": "cbBbBbB"
-     }
- ]
- ```
+   1. 选择列为 下拉，单选，复选时填写相关参数：(json格式)
+   
+        示例
+         ```json
+         [
+             {
+                 "key": "AAAA",
+                 "value": "aaaa",
+                 "label": "aAaAaA"
+             },
+             {
+                 "key": "BBBB",
+                 "value": "bbbb",
+                 "label": "bBbBbB"
+             }
+         ]
+         ```
+         
+         ```json
+         [
+             {
+                 "key": "cAAAA",
+                 "value": "caaaa",
+                 "label": "caAaAaA"
+             },
+             {
+                 "key": "cBBBB",
+                 "value": "cbbbb",
+                 "label": "cbBbBbB"
+             }
+         ]
+         ```
+    2. 选择列为 `日期` 类型 
+    
+        示例：
+        ```json
+        {
+            "format": "Y-m-d H:i:s"
+        }
+        ```
+        
+        
+        
+     
+     

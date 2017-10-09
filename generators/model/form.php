@@ -39,14 +39,13 @@ if($generator->tableName != '') {
         'radio'=>'单选按钮',
         'checkbox'=>'复选框',
         'dropDown'=>'下拉框',
-        'img'=>'图片',
         'date'=>'日期',
     ];
     foreach ($generator->generateColumnOptions() as $table => $columnOption) {
         //var_dump($columnOption);
         //echo $form->field($generator, "tableColumnOptions[$table]")->checkboxList($columnOption);
         //echo $columnOption->comment .'----'.join('==',$columnItems);
-        echo '表 '.$table .'参数配置<br>';
+        echo '<div class="row">表 '.$table .'参数配置</div>';
         foreach ($columnOption as $key => $item) {
             echo $form->field($generator,"tableColumnOptions[$table][$key][type]")->dropDownList($columnItems)->label('字段 '.$key.' 形式');
             echo $form->field($generator, "tableColumnOptions[$table][$key][params]")->textarea()->label('字段 '.$key.' 配置信息');
