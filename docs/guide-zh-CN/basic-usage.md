@@ -72,7 +72,30 @@
         }
         ```
         
-        
+ * 图像上传配置
+ 
+    ```json
+    [
+        {
+            "attribute": "thumbnail",
+            "label":"头像",
+            "pathAttribute": "thumbnail_path",
+            "baseUrlAttribute": "thumbnail_base_url"
+        },
+        {
+            "attribute": "attachments",
+            "label":"头像2",
+            "multiple": true,
+            "uploadRelation": "articleAttachments",
+            "pathAttribute": "path",
+            "baseUrlAttribute": "base_url",
+            "orderAttribute": "order",
+            "typeAttribute": "type",
+            "sizeAttribute": "size",
+            "nameAttribute": "name"
+        }
+    ]
+    ```
         
      
      

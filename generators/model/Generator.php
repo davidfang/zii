@@ -43,7 +43,7 @@ class Generator extends \yii\gii\Generator
     public $queryNs = 'app\models';
     public $queryClass;
     public $queryBaseClass = 'yii\db\ActiveQuery';
-    public $tableColumnSelect = false;
+    public $tableColumnImages = [];
     public $tableColumnOptions = [];
 
 
@@ -88,7 +88,7 @@ class Generator extends \yii\gii\Generator
             [['generateLabelsFromComments', 'useTablePrefix', 'useSchemaName', 'generateQuery', 'generateRelationsFromCurrentSchema'], 'boolean'],
             [['enableI18N'], 'boolean'],
             [['messageCategory'], 'validateMessageCategory', 'skipOnEmpty' => false],
-            [['tableColumnSelect', 'tableColumnOptions'], 'safe']
+            [['tableColumnImages', 'tableColumnOptions'], 'safe']
         ]);
     }
 
@@ -111,7 +111,7 @@ class Generator extends \yii\gii\Generator
             'queryClass' => 'ActiveQuery Class',
             'queryBaseClass' => 'ActiveQuery Base Class',
             'useSchemaName' => 'Use Schema Name',
-            'tableColumnSelect' => '选择生成数据表列',
+            'tableColumnImages' => '数据表图片上传信息',
             'tableColumnOptions' => '数据表列配置信息'
         ]);
     }
@@ -155,7 +155,7 @@ class Generator extends \yii\gii\Generator
             "queryNs" => "这是要生成的ActiveQuery类的命名空间,例如 < code> app \models </ code > ",
             "queryClass" => "这是要生成的ActiveQuery类的名称。类名不应该包含在‘ActiveQuery命名空间’中指定的命名空间部分。您不需要指定类名称如果‘表名’以星号结尾,则会生成多个ActiveQuery类。",
             "queryBaseClass" => "这是新的ActiveQuery类的基类。它应该是一个完全限定的名称空间的类名称",
-            'tableColumnSelect' => '选择生成数据表列',
+            'tableColumnImages' => '数据表图片上传信息',
             'tableColumnOptions' => '数据表列配置信息'
         );
         return array_merge(parent::hints(), $hints);
@@ -229,7 +229,7 @@ class Generator extends \yii\gii\Generator
      */
     public function stickyAttributes()
     {
-        return array_merge(parent::stickyAttributes(), ['ns', 'db', 'baseClass', 'generateRelations', 'generateLabelsFromComments', 'queryNs', 'queryBaseClass', 'useTablePrefix', 'generateQuery', 'tableColumnSelect', 'tableColumnOptions']);
+        return array_merge(parent::stickyAttributes(), ['ns', 'db', 'baseClass', 'generateRelations', 'generateLabelsFromComments', 'queryNs', 'queryBaseClass', 'useTablePrefix', 'generateQuery', 'tableColumnImages', 'tableColumnOptions']);
     }
 
     /**
@@ -271,7 +271,7 @@ class Generator extends \yii\gii\Generator
                 'labels' => $this->generateLabels($tableSchema),
                 'rules' => $this->generateRules($tableSchema),
                 'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
-                //'tableColumnSelect' => '选择生成数据表列',
+                'tableColumnImages' => $this->tableColumnImages[$tableName],
                 'tableColumnOptions' => $this->tableColumnOptions[$tableName]
             ];
             $files[] = new CodeFile(

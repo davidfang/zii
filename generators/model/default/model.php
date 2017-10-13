@@ -13,7 +13,7 @@
 /* @var $labels string[] list of attribute labels (name => label) */
 /* @var $rules string[] list of validation rules */
 /* @var $relations array list of relations (name => relation declaration) */
-/* @var $relations array list of relations (name => relation declaration) */
+/* @var $tableColumnImages array list of attribute (key => value) */
 /* @var $tableColumnOptions array list of attribute options (name => label)  */
 
 echo "<?php\n";
@@ -22,7 +22,9 @@ echo "<?php\n";
 namespace <?= $generator->ns ?>;
 
 use Yii;
-
+<?php if (!empty($tableColumnImages)){?>
+use trntv\filekit\behaviors\UploadBehavior;
+<?php } ?>
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
  *
@@ -73,6 +75,51 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     }
 }
 ?>
+<?php if (!empty($tableColumnImages)){
+    $tableColumnImagesArray = json_decode($tableColumnImages,true);
+    $tableColumnImageRule = '';
+    foreach ($tableColumnImagesArray as $tableColumnImage){
+        $tableColumnImageRule .= "'{$tableColumnImage['attribute']}',";
+    ?>
+    /**
+    * @var array
+    * 上传图像 <?= isset($tableColumnImage['multiple']) && $tableColumnImage['multiple'] ? '多张上传' : ''?>
+    */
+    public $<?=$tableColumnImage['attribute'] ?>;
+
+<?php }
+    $rules[] = '[['.$tableColumnImageRule ."], 'safe']";
+} ?>
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            //TimestampBehavior::className(),
+            //BlameableBehavior::className(),
+<?php if (!empty($tableColumnImages)){
+    $tableColumnImagesArray = json_decode($tableColumnImages,true);
+    foreach ($tableColumnImagesArray as $tableColumnImage){
+?>
+            [
+                'class' => UploadBehavior::className(),
+                'attribute' => '<?=$tableColumnImage['attribute'] ?>',
+                'pathAttribute' => '<?=$tableColumnImage['pathAttribute'] ?>',
+                'baseUrlAttribute' => '<?=$tableColumnImage['baseUrlAttribute'] ?>',
+<?php if ($tableColumnImage['multiple']){ ?>
+                'multiple' => true,
+                'uploadRelation' => '<?=$tableColumnImage['uploadRelation'] ?>',
+                'orderAttribute' => '<?=$tableColumnImage['orderAttribute'] ?>',
+                'typeAttribute' => '<?=$tableColumnImage['typeAttribute'] ?>',
+                'sizeAttribute' => '<?=$tableColumnImage['sizeAttribute'] ?>',
+                'nameAttribute' => '<?=$tableColumnImage['nameAttribute'] ?>',
+<?php } ?>
+            ],
+<?php }} ?>
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -108,6 +155,14 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
 <?php foreach ($labels as $name => $label): ?>
             <?= "'$name' => " . $generator->generateString($label) . ",\n" ?>
 <?php endforeach; ?>
+<?php if (!empty($tableColumnImages)){
+    $tableColumnImagesArray = json_decode($tableColumnImages,true);
+    foreach ($tableColumnImagesArray as $tableColumnImage){
+        $imageLabel = isset($tableColumnImage['label']) ? $tableColumnImage['label'] : $generator->generateString($tableColumnImage['attribute']);
+        ?>
+            <?= "'{$tableColumnImage['attribute']}' => '" . $imageLabel . "',\n" ?>
+<?php }
+} ?>
         ];
     }
 <?php foreach ($relations as $name => $relation): ?>
@@ -141,5 +196,13 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
      */
     public function columnOptions(){
         return '<?php echo json_encode($tableColumnOptions) ?>';
+    }
+
+    /**
+     * 图像上传字段属性
+     * @return array
+     */
+    public function imageOptions(){
+        return '<?php echo $tableColumnImages ?>';
     }
 }

@@ -31,7 +31,6 @@ echo $form->field($generator, 'enableI18N')->checkbox();
 echo $form->field($generator, 'messageCategory');
 echo $form->field($generator, 'useSchemaName')->checkbox();
 
-echo $form->field($generator, 'tableColumnSelect')->checkbox();
 if($generator->tableName != '') {
     echo '<div class="form-group">';
     $columnItems = [
@@ -40,11 +39,14 @@ if($generator->tableName != '') {
         'checkbox'=>'复选框',
         'dropDown'=>'下拉框',
         'date'=>'日期',
+        'hide'=>'不显示',
+        'hidden'=>'隐藏的输入字段',
     ];
     foreach ($generator->generateColumnOptions() as $table => $columnOption) {
         //var_dump($columnOption);
         //echo $form->field($generator, "tableColumnOptions[$table]")->checkboxList($columnOption);
         //echo $columnOption->comment .'----'.join('==',$columnItems);
+        echo $form->field($generator, "tableColumnImages[$table]")->textarea()->label($table.'数据表图片上传信息');
         echo '<div class="row">表 '.$table .'参数配置</div>';
         foreach ($columnOption as $key => $item) {
             echo $form->field($generator,"tableColumnOptions[$table][$key][type]")->dropDownList($columnItems)->label('字段 '.$key.' 形式');
