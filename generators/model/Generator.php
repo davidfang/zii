@@ -376,7 +376,7 @@ class Generator extends \yii\gii\Generator
             }
             if (!$column->allowNull && $column->defaultValue === null) {
                 $types['required'][] = $column->name;
-            }
+            }//echo '<pre>';var_dump($column);
             switch ($column->type) {
                 case Schema::TYPE_SMALLINT:
                 case Schema::TYPE_INTEGER:
@@ -399,10 +399,14 @@ class Generator extends \yii\gii\Generator
                     $types['safe'][] = $column->name;
                     break;
                 default: // strings
-                    if ($column->size > 0) {
-                        $lengths[$column->size][] = $column->name;
-                    } else {
-                        $types['string'][] = $column->name;
+                    if(substr($column->dbType,0,4)=='enum' || substr($column->dbType,0,3)=='set'){
+                        $types['safe'][] = $column->name;
+                    }else {
+                        if ($column->size > 0) {
+                            $lengths[$column->size][] = $column->name;
+                        } else {
+                            $types['string'][] = $column->name;
+                        }
                     }
             }
         }

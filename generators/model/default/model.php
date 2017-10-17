@@ -47,7 +47,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
             //var_dump($columnOption['params'],$params);
             foreach ($params as $paramKey => $paramValue) {
                 ?>
-    const <?= strtoupper($columnKey . '_' . $paramValue->key) ?> = '<?= $paramValue->value ?>';// <?= $paramValue->label."\n" ?>
+    const <?= strtoupper($columnKey . '_' . $paramValue->key) ?> = '<?= $paramValue->key ?>';// <?= $paramValue->label."\n" ?>
 <?php
             }
         }
@@ -75,9 +75,53 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     }
 }
 ?>
+
+    /**
+     * This method is invoked before validation starts.
+     * The default implementation raises a `beforeValidate` event.
+     * You may override this method to do preliminary checks before validation.
+     * Make sure the parent implementation is invoked so that the event can be raised.
+     * @return bool whether the validation should be executed. Defaults to true.
+     * If false is returned, the validation will stop and the model is considered invalid.
+     */
+    public function beforeValidate()
+    {
+<?php if(!empty($tableColumnOptions)) {
+    foreach ($tableColumnOptions as $columnKey => $columnOption) {
+        if($columnOption['type'] == 'checkbox'){
+        ?>
+        $this-><?=$columnKey?> = join(',',$this-><?=$columnKey?>);
+<?php }
+    }
+}
+?>
+        return parent::beforeValidate();
+    }
+    /**
+     * This method is called when the AR object is created and populated with the query result.
+     * The default implementation will trigger an [[EVENT_AFTER_FIND]] event.
+     * When overriding this method, make sure you call the parent implementation to ensure the
+     * event is triggered.
+     */
+    public function afterFind()
+    {
+<?php if(!empty($tableColumnOptions)) {
+        foreach ($tableColumnOptions as $columnKey => $columnOption) {
+            if($columnOption['type'] == 'checkbox'){
+?>
+        $this-><?=$columnKey?> = explode(',',$this-><?=$columnKey?>);
+<?php }
+    }
+}
+?>
+        $this->trigger(parent::EVENT_AFTER_FIND);
+    }
+
+
 <?php if (!empty($tableColumnImages)){
     $tableColumnImagesArray = json_decode($tableColumnImages,true);
     $tableColumnImageRule = '';
+    if(!empty($tableColumnImagesArray)){
     foreach ($tableColumnImagesArray as $tableColumnImage){
         $tableColumnImageRule .= "'{$tableColumnImage['attribute']}',";
     ?>
@@ -86,8 +130,15 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     * 上传图像 <?= isset($tableColumnImage['multiple']) && $tableColumnImage['multiple'] ? '多张上传' : ''?>
     */
     public $<?=$tableColumnImage['attribute'] ?>;
-
-<?php }
+<?php if(isset($tableColumnImage['multiple']) && $tableColumnImage['multiple']){ ?>
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function get<?=$tableColumnImage['uploadRelation']?>()
+    {
+        return $this->hasMany(<?=$tableColumnImage['uploadRelation']?>::className(), ['<?=$tableColumnImage['foreignKey']?>' => 'id']);
+    }
+<?php }}}
     $rules[] = '[['.$tableColumnImageRule ."], 'safe']";
 } ?>
     /**
@@ -100,6 +151,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
             //BlameableBehavior::className(),
 <?php if (!empty($tableColumnImages)){
     $tableColumnImagesArray = json_decode($tableColumnImages,true);
+    if(!empty($tableColumnImagesArray)){
     foreach ($tableColumnImagesArray as $tableColumnImage){
 ?>
             [
@@ -116,7 +168,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
                 'nameAttribute' => '<?=$tableColumnImage['nameAttribute'] ?>',
 <?php } ?>
             ],
-<?php }} ?>
+<?php }}} ?>
         ];
     }
 
@@ -157,12 +209,12 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
 <?php endforeach; ?>
 <?php if (!empty($tableColumnImages)){
     $tableColumnImagesArray = json_decode($tableColumnImages,true);
+    if(!empty($tableColumnImagesArray)){
     foreach ($tableColumnImagesArray as $tableColumnImage){
         $imageLabel = isset($tableColumnImage['label']) ? $tableColumnImage['label'] : $generator->generateString($tableColumnImage['attribute']);
         ?>
             <?= "'{$tableColumnImage['attribute']}' => '" . $imageLabel . "',\n" ?>
-<?php }
-} ?>
+<?php }}} ?>
         ];
     }
 <?php foreach ($relations as $name => $relation): ?>

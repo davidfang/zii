@@ -12,6 +12,7 @@ use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
 use yii\db\Schema;
 use yii\gii\CodeFile;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
 use yii\helpers\VarDumper;
 use yii\web\Controller;
@@ -238,7 +239,7 @@ class Generator extends \yii\gii\Generator
                 return "\$form->field(\$model, '$attribute')";
             }
         }
-        $column = $tableSchema->columns[$attribute];
+        $column = $tableSchema->columns[$attribute];//var_dump($column);
         if ($column->phpType === 'boolean') {
             return "\$form->field(\$model, '$attribute')->checkbox()";
         } elseif ($column->type === 'text') {
@@ -262,6 +263,72 @@ class Generator extends \yii\gii\Generator
                 return "\$form->field(\$model, '$attribute')->$input(['maxlength' => true])";
             }
         }
+    }
+
+    /**
+     * Generates code for active field
+     * @param string $attribute
+     * @param $model \yii\db\ActiveRecord
+     * @return string
+     */
+    public function generateActiveFieldSupper($attribute, $model)
+    {
+        $columnOptions = $model->columnOptions();
+        $columnOptions = json_decode($columnOptions,true);
+        //echo '<pre>';var_dump($columnOptions);exit;
+        foreach ($columnOptions as $key => $columnOption) {
+            if($key == $attribute){
+                $params = json_decode($columnOption['params'],true);
+                    switch ($columnOption['type']){
+                        case 'radio':
+                            return "\$form->field(\$model, '$attribute')->radioList("
+                                . ltrim($this->modelClass, '\\')."::".$key."Options())";
+                        case 'checkbox':
+                        return "\$form->field(\$model, '$attribute')->checkboxList("
+                            . ltrim($this->modelClass, '\\')."::".$key."Options())";
+                        case 'dropDown':
+                            return "\$form->field(\$model, '$attribute')->dropDownList("
+                                . ltrim($this->modelClass, '\\')."::".$key."Options(), ['prompt' => '请选择'])";
+                        case 'date':
+                        case 'hide':
+                            return '';
+                        case 'hidden':
+                            return '';
+
+                        case '':
+                        default:
+                            return $this->generateActiveField($attribute);
+                    }
+            }
+        }
+
+    }
+    
+    public function generateImageFields($imageOptions){
+        $imageOptions = json_decode($imageOptions,true);
+        $return = '';
+        foreach ($imageOptions as $imageOption) {
+            if(isset($imageOption['multiple']) && $imageOption['multiple']){
+                $return .= "    <?php echo \$form->field(\$model, '{$imageOption['attribute']}')->widget(
+        trntv\\filekit\\widget\\Upload::className(),
+        [
+            'url' => ['/file-storage/upload'],
+            'sortable' => true,
+            'maxFileSize' => 10000000, // 10 MiB
+            'maxNumberOfFiles' => 10
+        ]);
+    ?>\n\n";
+            }else{
+                $return .= "    <?php echo \$form->field(\$model, '{$imageOption['attribute']}')->widget(
+    trntv\\filekit\\widget\\Upload::className(),
+    [
+        'url' => ['/file-storage/upload'],
+        'maxFileSize' => 5000000, // 5 MiB
+    ]);
+    ?>\n\n";
+            }
+        }
+        return $return ;
     }
 
     /**

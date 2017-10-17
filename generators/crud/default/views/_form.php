@@ -30,9 +30,18 @@ use yii\widgets\ActiveForm;
 
 <?php foreach ($generator->getColumnNames() as $attribute) {
     if (in_array($attribute, $safeAttributes)) {
-        echo "    <?= " . $generator->generateActiveField($attribute) . " ?>\n\n";
+        $activeFieldSupper = $generator->generateActiveFieldSupper($attribute,$model);
+        if(!empty($activeFieldSupper)) {
+            echo "    <?= " . $activeFieldSupper . " ?>\n\n";
+        }
     }
 } ?>
+<?php
+    $imageOptions = $model->imageOptions();
+    if(!empty($imageOptions)){
+        echo $generator->generateImageFields($imageOptions) ;
+    }
+?>
     <div class="form-group">
         <?= "<?= " ?>Html::submitButton(<?= $generator->generateString('Save') ?>, ['class' => 'btn btn-success']) ?>
     </div>
