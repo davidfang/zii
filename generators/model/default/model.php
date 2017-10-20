@@ -25,6 +25,21 @@ use Yii;
 <?php if (!empty($tableColumnImages)){?>
 use trntv\filekit\behaviors\UploadBehavior;
 <?php } ?>
+<?php if(!empty($tableColumnOptions)) {
+    $TimestampBehavior = false;
+    $BlameableBehavior = false;
+    foreach ($tableColumnOptions as $columnKey => $columnOption) {
+        if($columnOption['type'] == 'createAt' || $columnOption['type'] == 'updateAt'){
+            $TimestampBehavior = true;
+        }
+        if($columnOption['type'] == 'createdBy' || $columnOption['type'] == 'updatedBy'){
+            $BlameableBehavior = true;
+        }
+    }
+    echo $TimestampBehavior ? "use yii\behaviors\TimestampBehavior;\n":'';
+    echo $BlameableBehavior ? "use yii\behaviors\BlameableBehavior;\n":'';
+}?>
+
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
  *
@@ -90,7 +105,9 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     foreach ($tableColumnOptions as $columnKey => $columnOption) {
         if($columnOption['type'] == 'checkbox'){
         ?>
-        $this-><?=$columnKey?> = join(',',$this-><?=$columnKey?>);
+        if($this-><?=$columnKey?>) {
+            $this-><?=$columnKey?> = join(',', $this-><?=$columnKey?>);
+        }
 <?php }
     }
 }
@@ -130,13 +147,13 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     * 上传图像 <?= isset($tableColumnImage['multiple']) && $tableColumnImage['multiple'] ? '多张上传' : ''?>
     */
     public $<?=$tableColumnImage['attribute'] ?>;
-<?php if(isset($tableColumnImage['multiple']) && $tableColumnImage['multiple']){ ?>
+<?php if(isset($tableColumnImage['multiple']) && $tableColumnImage['multiple'] && isset($relations[$tableColumnImage['uploadRelation']])){ ?>
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function get<?=$tableColumnImage['uploadRelation']?>()
+    public function get<?=\yii\helpers\Inflector::pluralize($tableColumnImage['uploadRelation'])?>()
     {
-        return $this->hasMany(<?=$tableColumnImage['uploadRelation']?>::className(), ['<?=$tableColumnImage['foreignKey']?>' => 'id']);
+        return $this->hasMany(<?=$tableColumnImage['uploadRelation']?>::className(), ['<?=$tableColumnImage['foreignKey']?>' => 'id'])->all();
     }
 <?php }}}
     $rules[] = '[['.$tableColumnImageRule ."], 'safe']";
@@ -147,8 +164,37 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     public function behaviors()
     {
         return [
-            //TimestampBehavior::className(),
-            //BlameableBehavior::className(),
+<?php if(!empty($tableColumnOptions)) {
+    $TimestampBehavior = false;
+    $BlameableBehavior = false;
+    foreach ($tableColumnOptions as $columnKey => $columnOption) {
+        if($columnOption['type'] == 'createAt' ){?>
+            [
+                 'class' => TimestampBehavior::className(),
+                 'createdAtAttribute' => '<?=$columnKey?>',
+             ],
+<?php        }
+        if( $columnOption['type'] == 'updateAt'){?>
+            [
+                'class' => TimestampBehavior::className(),
+                'updatedAtAttribute' => '<?=$columnKey?>',
+            ],
+<?php        }
+
+        if($columnOption['type'] == 'createdBy'){?>
+            [
+                 'class' => BlameableBehavior::className(),
+                 'createdByAttribute' => '<?=$columnKey?>',
+             ],
+<?php        }
+        if($columnOption['type'] == 'updatedBy'){?>
+            [
+                 'class' => BlameableBehavior::className(),
+                 'updatedByAttribute' => '<?=$columnKey?>',
+             ],
+<?php        }
+    }
+}?>
 <?php if (!empty($tableColumnImages)){
     $tableColumnImagesArray = json_decode($tableColumnImages,true);
     if(!empty($tableColumnImagesArray)){
@@ -161,7 +207,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
                 'baseUrlAttribute' => '<?=$tableColumnImage['baseUrlAttribute'] ?>',
 <?php if ($tableColumnImage['multiple']){ ?>
                 'multiple' => true,
-                'uploadRelation' => '<?=$tableColumnImage['uploadRelation'] ?>',
+                'uploadRelation' => '<?=\yii\helpers\Inflector::pluralize($tableColumnImage['uploadRelation']) ?>',
                 'orderAttribute' => '<?=$tableColumnImage['orderAttribute'] ?>',
                 'typeAttribute' => '<?=$tableColumnImage['typeAttribute'] ?>',
                 'sizeAttribute' => '<?=$tableColumnImage['sizeAttribute'] ?>',

@@ -283,21 +283,31 @@ class Generator extends \yii\gii\Generator
                         case 'radio':
                             return "\$form->field(\$model, '$attribute')->radioList("
                                 . ltrim($this->modelClass, '\\')."::".$key."Options())";
+                            break;
                         case 'checkbox':
                         return "\$form->field(\$model, '$attribute')->checkboxList("
                             . ltrim($this->modelClass, '\\')."::".$key."Options())";
+                            break;
                         case 'dropDown':
                             return "\$form->field(\$model, '$attribute')->dropDownList("
                                 . ltrim($this->modelClass, '\\')."::".$key."Options(), ['prompt' => '请选择'])";
+                            break;
                         case 'date':
+
+                        case 'createAt':
+                        case 'updateAt':
+                        case 'createdBy':
+                        case 'updatedBy':
                         case 'hide':
                             return '';
+                            break;
                         case 'hidden':
                             return '';
-
+                            break;
                         case '':
                         default:
                             return $this->generateActiveField($attribute);
+                            break;
                     }
             }
         }

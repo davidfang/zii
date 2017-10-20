@@ -7,7 +7,10 @@ use yii\helpers\StringHelper;
 /* @var $generator yii\gii\generators\crud\Generator */
 
 $urlParams = $generator->generateUrlParams();
-
+$modelClass = $generator->modelClass;
+$model = new  $modelClass();
+$columnOptions = $model->columnOptions();
+$imageOptions = $model->imageOptions();
 echo "<?php\n";
 ?>
 
@@ -46,8 +49,87 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
     }
 } else {
     foreach ($generator->getTableSchema()->columns as $column) {
-        $format = $generator->generateColumnFormat($column);
-        echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+        if(!empty($columnOptions)){
+            $columnOptionsArray = json_decode($columnOptions,true);
+            foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
+                if($key == $column->name){
+                    switch ($columnOption['type']){
+                        case 'checkbox':
+                            ?>
+            [
+                'attribute'=>'<?=$column->name?>',
+                'format' => 'html',
+                'value' => function($model){
+                    $return = '';
+                    if(!empty($model-><?=$column->name?>)){
+                        $options = <?=$modelClass?>::<?=$column->name?>Options();
+                        foreach ($model-><?=$column->name?> as $value){
+                            $return .= ' '.Html::label($options[$value]);
+                        }
+                    }
+                    return $return;
+                }
+            ],
+<?php                           break;
+                            case 'createAt':
+                            case 'updateAt':
+                                echo "            '" . $column->name .  ":datetime"  . "',\n";
+                                break;
+                            case 'date':
+
+                            default:
+                                $format = $generator->generateColumnFormat($column);
+                                echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+                                break;
+                    }
+                }
+            }
+        }
+
+    }
+}
+?>
+<?php
+if(!empty($imageOptions)){
+    $imageOptionsArray = json_decode($imageOptions,true);
+    foreach ($imageOptionsArray as $item) {
+        if(isset($item['multiple']) && $item['multiple']){//多图
+            ?>
+            [
+                'attribute'=>'<?=$item['attribute']?>',
+                //'thumbnail_path:image',
+                'format' => 'html',
+                'value'=> function($model) {
+                    $return = '';
+                    $foreignKeys = $model->get<?=$item['uploadRelation']?>();
+                    if( $foreignKeys) {
+                        //echo '<pre>';var_dump($foreignKeys);
+                        foreach ($foreignKeys as $item) {
+                            //echo '<pre>';var_dump($item->path);
+                            $return .= Html::img(Yii::$app->glide->createSignedUrl([
+                                'glide/index',
+                                'path' => $item-><?=$item['pathAttribute']?>,
+                                'w' => 200
+                            ], true)).'<br>';
+                        }
+                    }//var_dump($return);
+                    return $return;
+                }
+            ],
+<?php
+        }else{//单图
+    ?>
+            [
+                'attribute'=>'<?=$item['attribute']?>',
+                //'thumbnail_path:image',
+                'format' => ['image',['width'=>'100','height'=>'100','title'=>$model-><?=$item['pathAttribute'] ?>]],
+                'value'=> Yii::$app->glide->createSignedUrl([
+                    'glide/index',
+                    'path' => $model-><?=$item['pathAttribute'] ?>,
+                    'w' => 200
+                ], true),
+            ],
+<?php      }
     }
 }
 ?>

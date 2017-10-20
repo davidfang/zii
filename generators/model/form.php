@@ -39,6 +39,10 @@ if($generator->tableName != '') {
         'checkbox'=>'复选框',
         'dropDown'=>'下拉框',
         'date'=>'日期',
+        'createAt'=>'创建时间',
+        'updateAt'=>'更新时间',
+        'createdBy'=>'操作者ID',
+        'updatedBy'=>'更新者ID',
         'hide'=>'不显示',
         'hidden'=>'隐藏的输入字段',
     ];

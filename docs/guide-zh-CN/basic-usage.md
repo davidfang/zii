@@ -72,7 +72,7 @@
         }
         ```
         
- * 图像上传配置
+ * 图像上传配置 
  
     ```json
     [
@@ -86,13 +86,14 @@
             "attribute": "attachments",
             "label":"头像2",
             "multiple": true,
-            "uploadRelation": "articleAttachments",
+            "uploadRelation": "ArticleAttachments",
             "pathAttribute": "path",
             "baseUrlAttribute": "base_url",
             "orderAttribute": "order",
             "typeAttribute": "type",
             "sizeAttribute": "size",
-            "nameAttribute": "name"
+            "nameAttribute": "name",
+            "foreignKey":"article_id"
         }
     ]
     ```
