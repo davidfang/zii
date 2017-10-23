@@ -54,6 +54,22 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
                 if($key == $column->name){
                     switch ($columnOption['type']){
+                        case 'radio':
+                        case 'dropDown':
+                        ?>
+            [
+                'attribute'=>'<?=$column->name?>',
+                'format' => 'html',
+                'value' => function($model){
+                    $return = '';
+                    if(!empty($model-><?=$column->name?>)){
+                        $options = <?=$modelClass?>::<?=$column->name?>Options();
+                            $return = Html::label($options[$model-><?=$column->name?>]);
+                    }
+                    return $return;
+                }
+            ],
+<?php                            break;
                         case 'checkbox':
                             ?>
             [
@@ -74,6 +90,18 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                             case 'createAt':
                             case 'updateAt':
                                 echo "            '" . $column->name .  ":datetime"  . "',\n";
+                                break;
+                            case 'createdBy':
+                            case 'updatedBy':
+                                $handleBy = json_decode($columnOption['params'],true);
+                                ?>
+            [
+                'attribute'=>'<?=$column->name?>',
+                'value' => function($model){
+                        return $model-><?=Inflector::variablize($handleBy['attribute'])?>-><?=$handleBy['target']?>;
+                    }
+            ],
+<?php
                                 break;
                             case 'date':
 
@@ -101,11 +129,9 @@ if(!empty($imageOptions)){
                 'format' => 'html',
                 'value'=> function($model) {
                     $return = '';
-                    $foreignKeys = $model->get<?=$item['uploadRelation']?>();
+                    $foreignKeys = $model->get<?=\yii\helpers\Inflector::pluralize($item['uploadRelation'])?>();
                     if( $foreignKeys) {
-                        //echo '<pre>';var_dump($foreignKeys);
                         foreach ($foreignKeys as $item) {
-                            //echo '<pre>';var_dump($item->path);
                             $return .= Html::img(Yii::$app->glide->createSignedUrl([
                                 'glide/index',
                                 'path' => $item-><?=$item['pathAttribute']?>,

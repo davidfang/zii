@@ -71,7 +71,24 @@
             "format": "Y-m-d H:i:s"
         }
         ```
+    3. 创建者配置
+       
+       ```json
+            {
+                "attribute": "created_by",
+                "target": "username"
+            }
+        ```
         
+    4. 更新者配置
+       
+       ```json
+            {
+                "attribute": "updated_by",
+                "target": "username"
+            }
+        ```
+             
  * 图像上传配置 
  
     ```json
@@ -97,6 +114,41 @@
         }
     ]
     ```
-        
-     
+## 示例数据表
+
+```db2
+    CREATE TABLE `zii` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `redio` enum('1','2','3','4','5') DEFAULT '1' COMMENT '单选',
+      `checkbox` set('a','b','c','d','e') DEFAULT NULL COMMENT '多选',
+      `dropdown` varchar(45) DEFAULT NULL COMMENT '下拉',
+      `thumbnail_base_url` varchar(1024) DEFAULT NULL COMMENT '头像基本路径',
+      `thumbnail_path` varchar(1024) DEFAULT NULL COMMENT '头像路径',
+      `bierthday` varchar(45) DEFAULT NULL COMMENT '生日',
+      `created_at` int(11) DEFAULT NULL COMMENT '创建时间',
+      `updated_at` int(11) DEFAULT NULL COMMENT '更新时间',
+      `created_by` int(11) DEFAULT NULL COMMENT '创建者',
+      `updated_by` int(11) DEFAULT NULL COMMENT '更新者',
+      PRIMARY KEY (`id`),
+      KEY `zii_created_by_idx` (`created_by`),
+      KEY `zii_updated_by_idx` (`updated_by`),
+      CONSTRAINT `zii_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+      CONSTRAINT `zii_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+    
+    CREATE TABLE `zii_attachment` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `zii_id` int(11) NOT NULL,
+      `path` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+      `base_url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+      `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+      `size` int(11) DEFAULT NULL,
+      `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+      `created_at` int(11) DEFAULT NULL,
+      `order` int(11) DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `fk_zii_attachment_zii` (`zii_id`),
+      CONSTRAINT `fk_zii_attachment_zii` FOREIGN KEY (`zii_id`) REFERENCES `zii` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+```
      

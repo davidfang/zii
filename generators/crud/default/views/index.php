@@ -8,7 +8,10 @@ use yii\helpers\StringHelper;
 
 $urlParams = $generator->generateUrlParams();
 $nameAttribute = $generator->getNameAttribute();
-
+$modelClass = $generator->modelClass;
+$model = new  $modelClass();
+$columnOptions = $model->columnOptions();
+$imageOptions = $model->imageOptions();
 echo "<?php\n";
 ?>
 
@@ -45,24 +48,133 @@ $this->params['breadcrumbs'][] = $this->title;
 $count = 0;
 if (($tableSchema = $generator->getTableSchema()) === false) {
     foreach ($generator->getColumnNames() as $name) {
+
         if (++$count < 6) {
             echo "            '" . $name . "',\n";
         } else {
             echo "            //'" . $name . "',\n";
         }
+
     }
 } else {
     foreach ($tableSchema->columns as $column) {
-        $format = $generator->generateColumnFormat($column);
-        if (++$count < 6) {
-            echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
-        } else {
-            echo "            //'" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+        if(!empty($columnOptions)) {
+            $columnOptionsArray = json_decode($columnOptions, true);
+            foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
+                if ($key == $column->name) {
+                    switch ($columnOption['type']){
+                        case 'radio':
+                        case 'dropDown':?>
+            [
+                'attribute'=>'<?=$column->name?>',
+                'format' => 'html',
+                'value' => function($model){
+                    $return = '';
+                    if(!empty($model-><?=$column->name?>)){
+                        $options = <?=$modelClass?>::<?=$column->name?>Options();
+                        $return = Html::label($options[$model-><?=$column->name?>]);
+                    }
+                    return $return;
+                }
+            ],
+<?php                       break;
+                        case 'checkbox':?>
+            [
+                'attribute'=>'<?=$column->name?>',
+                'format' => 'html',
+                'value' => function($model){
+                    $return = '';
+                    if(!empty($model-><?=$column->name?>)){
+                        $options = <?=$modelClass?>::<?=$column->name?>Options();
+                        foreach ($model-><?=$column->name?> as $value){
+                            $return .= ' '.Html::label($options[$value]);
+                        }
+                    }
+                    return $return;
+                }
+            ],
+<?php                       break;
+                        case 'date':
+                        case 'createAt':
+                        case 'updateAt':
+                            echo "            '" . $column->name .  ":datetime"  . "',\n";
+                            break;
+                        case 'createdBy':
+                        case 'updatedBy':
+                        $handleBy = json_decode($columnOption['params'],true);
+                            ?>
+            [
+                'attribute'=>'<?=$column->name?>',
+                'value' => '<?=Inflector::variablize($handleBy['attribute'])?>.<?=$handleBy['target']?>'
+            ],
+<?php                        break;
+                        default:
+                            $format = $generator->generateColumnFormat($column);
+                            if (++$count < 6) {
+                                echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+                            } else {
+                                echo "            //'" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+                            }
+                            break;
+                    }
+                }
+            }
+        }else {
+
+            $format = $generator->generateColumnFormat($column);
+            if (++$count < 6) {
+                echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+            } else {
+                echo "            //'" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+            }
         }
     }
 }
 ?>
-
+    <?php
+    if(!empty($imageOptions)){
+        $imageOptionsArray = json_decode($imageOptions,true);
+        foreach ($imageOptionsArray as $item) {
+            if(isset($item['multiple']) && $item['multiple']){//多图
+                ?>
+        [
+            'attribute'=>'<?=$item['attribute']?>',
+            //'thumbnail_path:image',
+            'format' => 'html',
+            'value'=> function($model) {
+                $return = '';
+                $foreignKeys = $model->get<?=\yii\helpers\Inflector::pluralize($item['uploadRelation'])?>();
+                if( $foreignKeys) {
+                    foreach ($foreignKeys as $item) {
+                        $return .= Html::img(Yii::$app->glide->createSignedUrl([
+                                            'glide/index',
+                                            'path' => $item-><?=$item['pathAttribute']?>,
+                                            'w' => 50
+                                            ], true)).'<br>';
+                        }
+                 }
+                return $return;
+            }
+        ],
+<?php
+            }else{//单图
+                ?>
+        [
+            'attribute'=>'<?=$item['attribute']?>',
+            //'thumbnail_path:image',
+            'format' => ['image',['width'=>'50','height'=>'50','title'=>$model-><?=$item['pathAttribute'] ?>]],
+            'value'=> function($model){
+                    return Yii::$app->glide->createSignedUrl([
+                                'glide/index',
+                                'path' => $model-><?=$item['pathAttribute'] ?>,
+                                'w' => 50
+                                ], true);
+                }
+        ],
+<?php      }
+        }
+    }
+    ?>
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

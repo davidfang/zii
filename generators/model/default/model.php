@@ -171,26 +171,38 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
         if($columnOption['type'] == 'createAt' ){?>
             [
                  'class' => TimestampBehavior::className(),
-                 'createdAtAttribute' => '<?=$columnKey?>',
+                 //'createdAtAttribute' => '<?=$columnKey?>',
+                 'attributes' => [
+                    self::EVENT_BEFORE_INSERT => '<?=$columnKey?>',
+                 ],
              ],
 <?php        }
         if( $columnOption['type'] == 'updateAt'){?>
             [
                 'class' => TimestampBehavior::className(),
-                'updatedAtAttribute' => '<?=$columnKey?>',
+                //'updatedAtAttribute' => '<?=$columnKey?>',
+                'attributes' => [
+                    self::EVENT_BEFORE_UPDATE => '<?=$columnKey?>',
+                ],
             ],
 <?php        }
 
         if($columnOption['type'] == 'createdBy'){?>
             [
                  'class' => BlameableBehavior::className(),
-                 'createdByAttribute' => '<?=$columnKey?>',
+                 //'createdByAttribute' => '<?=$columnKey?>',
+                 'attributes' => [
+                    self::EVENT_BEFORE_INSERT => '<?=$columnKey?>',
+                 ],
              ],
 <?php        }
         if($columnOption['type'] == 'updatedBy'){?>
             [
                  'class' => BlameableBehavior::className(),
-                 'updatedByAttribute' => '<?=$columnKey?>',
+                 //'updatedByAttribute' => '<?=$columnKey?>',
+                 'attributes' => [
+                    self::EVENT_BEFORE_UPDATE => '<?=$columnKey?>',
+                 ],
              ],
 <?php        }
     }
