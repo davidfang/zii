@@ -19,6 +19,11 @@ $labels = $generator->generateSearchLabels();
 $searchAttributes = $generator->getSearchAttributes();
 $searchConditions = $generator->generateSearchConditions();
 
+$modelClass = $generator->modelClass;
+$model = new  $modelClass();
+$columnOptions = $model->columnOptions();
+
+$modelClass = StringHelper::basename($generator->modelClass);
 echo "<?php\n";
 ?>
 
@@ -35,6 +40,23 @@ use <?= ltrim($generator->modelClass, '\\') . (isset($modelAlias) ? " as $modelA
 class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $modelClass ?>
 
 {
+<?php
+if(!empty($columnOptions)) {
+    $columnOptionsArray = json_decode($columnOptions, true);
+    $tableColumnOptionRule = '';
+    foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
+        if($columnOption['type'] == 'createdBy' || $columnOption['type'] == 'updatedBy'){
+            $params = empty($columnOption['params']) ? [] : json_decode($columnOption['params'],true);
+            echo "    public \${$key}_{$params['target']};\n";
+            $tableColumnOptionRule .= "'{$key}_{$params['target']}',";
+        }
+    }
+    if($tableColumnOptionRule != ''){
+        $rules[] = '[['.$tableColumnOptionRule ."], 'safe']";
+    }
+}
+?>
+
     /**
      * @inheritdoc
      */
@@ -64,13 +86,43 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
     public function search($params)
     {
         $query = <?= isset($modelAlias) ? $modelAlias : $modelClass ?>::find();
-
+<?php
+if(!empty($columnOptions)) {
+    $columnOptionsArray = json_decode($columnOptions, true);
+    $tableColumnOptionRule = '';
+    foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
+        if ($columnOption['type'] == 'createdBy' || $columnOption['type'] == 'updatedBy') {
+            $params = empty($columnOption['params']) ? [] : json_decode($columnOption['params'],true);
+            ?>
+        $query->joinWith(['<?=\yii\helpers\Inflector::variablize($key)?> <?=\yii\helpers\Inflector::variablize($key.'_'.$params['table'])?>']);
+<?php
+        }
+    }
+}
+?>
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
+<?php
+if(!empty($columnOptions)) {
+    $columnOptionsArray = json_decode($columnOptions, true);
+    $tableColumnOptionRule = '';
+    foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
+        if ($columnOption['type'] == 'createdBy' || $columnOption['type'] == 'updatedBy') {
+            $params = empty($columnOption['params']) ? [] : json_decode($columnOption['params'],true);
+            ?>
+        $dataProvider->sort->attributes['<?=$key.'_'.$params['target']?>'] = [
+            'asc' => ['<?=\yii\helpers\Inflector::variablize($key.'_'.$params['table'])?>.<?=$params['target']?>' => SORT_ASC],
+            'desc' => ['<?=\yii\helpers\Inflector::variablize($key.'_'.$params['table'])?>.<?=$params['target']?>' => SORT_DESC],
+            'label' => '<?= $labels[$key]?>'
+        ];
+            <?php
+        }
+    }
+}
+?>
         $this->load($params);
 
         if (!$this->validate()) {
@@ -81,7 +133,20 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
 
         // grid filtering conditions
         <?= implode("\n        ", $searchConditions) ?>
-
+<?php
+if(!empty($columnOptions)) {
+    $columnOptionsArray = json_decode($columnOptions, true);
+    $tableColumnOptionRule = '';
+    foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
+        if ($columnOption['type'] == 'createdBy' || $columnOption['type'] == 'updatedBy') {
+            $params = empty($columnOption['params']) ? [] : json_decode($columnOption['params'],true);
+            ?>
+            $query->andFilterWhere(['like', '<?=\yii\helpers\Inflector::variablize($key.'_'.$params['table'])?>.<?=$params['target']?>', $this-><?=$key.'_'.$params['target']?>]) ;//<=====加入这句
+<?php
+        }
+    }
+}
+?>
         return $dataProvider;
     }
 }

@@ -105,8 +105,8 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     foreach ($tableColumnOptions as $columnKey => $columnOption) {
         if($columnOption['type'] == 'checkbox'){
         ?>
-        if($this-><?=$columnKey?>) {
-            $this-><?=$columnKey?> = join(',', $this-><?=$columnKey?>);
+        if($this-><?=$columnKey?> && is_array($this-><?=$columnKey?>)) {
+             $this-><?=$columnKey?> = join(',', $this-><?=$columnKey?>);
         }
 <?php }
     }

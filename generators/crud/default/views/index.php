@@ -62,12 +62,25 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             $columnOptionsArray = json_decode($columnOptions, true);
             foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
                 if ($key == $column->name) {
+
+                    $hasImageOption = false;//没有匹配的图片路径参数
+                    if(!empty($imageOptions)) {
+                        $imageOptionsArray = json_decode($imageOptions, true);
+                        foreach ($imageOptionsArray as $item) {
+                            if($item['pathAttribute'] == $column->name || $item['baseUrlAttribute'] == $column->name){
+                                $hasImageOption = true;
+                            }
+                        }
+                    }
+
+                    if($hasImageOption == false){
                     switch ($columnOption['type']){
                         case 'radio':
                         case 'dropDown':?>
             [
                 'attribute'=>'<?=$column->name?>',
                 'format' => 'html',
+                'filter' => <?=$modelClass?>::<?=$column->name?>Options(),
                 'value' => function($model){
                     $return = '';
                     if(!empty($model-><?=$column->name?>)){
@@ -82,6 +95,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             [
                 'attribute'=>'<?=$column->name?>',
                 'format' => 'html',
+                'filter' => <?=$modelClass?>::<?=$column->name?>Options(),
                 'value' => function($model){
                     $return = '';
                     if(!empty($model-><?=$column->name?>)){
@@ -104,7 +118,8 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                         $handleBy = json_decode($columnOption['params'],true);
                             ?>
             [
-                'attribute'=>'<?=$column->name?>',
+                'attribute' => '<?=$column->name?>_<?=$handleBy['target']?>',
+                 'label' => '<?=$column->comment?>',
                 'value' => '<?=Inflector::variablize($handleBy['attribute'])?>.<?=$handleBy['target']?>'
             ],
 <?php                        break;
@@ -118,7 +133,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                             break;
                     }
                 }
-            }
+            }}
         }else {
 
             $format = $generator->generateColumnFormat($column);
@@ -131,46 +146,46 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
     }
 }
 ?>
-    <?php
+<?php
     if(!empty($imageOptions)){
         $imageOptionsArray = json_decode($imageOptions,true);
         foreach ($imageOptionsArray as $item) {
             if(isset($item['multiple']) && $item['multiple']){//多图
                 ?>
-        [
-            'attribute'=>'<?=$item['attribute']?>',
-            //'thumbnail_path:image',
-            'format' => 'html',
-            'value'=> function($model) {
-                $return = '';
-                $foreignKeys = $model->get<?=\yii\helpers\Inflector::pluralize($item['uploadRelation'])?>();
-                if( $foreignKeys) {
-                    foreach ($foreignKeys as $item) {
-                        $return .= Html::img(Yii::$app->glide->createSignedUrl([
-                                            'glide/index',
-                                            'path' => $item-><?=$item['pathAttribute']?>,
-                                            'w' => 50
-                                            ], true)).'<br>';
-                        }
-                 }
-                return $return;
-            }
-        ],
+            [
+                'attribute'=>'<?=$item['attribute']?>',
+                //'thumbnail_path:image',
+                'format' => 'html',
+                'value'=> function($model) {
+                    $return = '';
+                    $foreignKeys = $model->get<?=\yii\helpers\Inflector::pluralize($item['uploadRelation'])?>();
+                    if( $foreignKeys) {
+                        foreach ($foreignKeys as $item) {
+                            $return .= Html::img(Yii::$app->glide->createSignedUrl([
+                                                'glide/index',
+                                                'path' => $item-><?=$item['pathAttribute']?>,
+                                                'w' => 50
+                                                ], true)).'<br>';
+                            }
+                     }
+                    return $return;
+                }
+            ],
 <?php
             }else{//单图
                 ?>
-        [
-            'attribute'=>'<?=$item['attribute']?>',
-            //'thumbnail_path:image',
-            'format' => ['image',['width'=>'50','height'=>'50','title'=>$model-><?=$item['pathAttribute'] ?>]],
-            'value'=> function($model){
-                    return Yii::$app->glide->createSignedUrl([
-                                'glide/index',
-                                'path' => $model-><?=$item['pathAttribute'] ?>,
-                                'w' => 50
-                                ], true);
-                }
-        ],
+            [
+                'attribute'=>'<?=$item['attribute']?>',
+                //'thumbnail_path:image',
+                'format' => ['image',['width'=>'50','height'=>'50','title'=>$model-><?=$item['pathAttribute'] ?>]],
+                'value'=> function($model){
+                        return Yii::$app->glide->createSignedUrl([
+                                    'glide/index',
+                                    'path' => $model-><?=$item['pathAttribute'] ?>,
+                                    'w' => 50
+                                    ], true);
+                    }
+            ],
 <?php      }
         }
     }

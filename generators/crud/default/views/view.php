@@ -53,6 +53,18 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             $columnOptionsArray = json_decode($columnOptions,true);
             foreach ($columnOptionsArray as $key => $columnOption) {//自定义数据列循环
                 if($key == $column->name){
+
+                    $hasImageOption = false;//没有匹配的图片路径参数
+                    if(!empty($imageOptions)) {
+                        $imageOptionsArray = json_decode($imageOptions, true);
+                        foreach ($imageOptionsArray as $item) {
+                            if($item['pathAttribute'] == $column->name || $item['baseUrlAttribute'] == $column->name){
+                                $hasImageOption = true;
+                            }
+                        }
+                    }
+
+                    if($hasImageOption == false){
                     switch ($columnOption['type']){
                         case 'radio':
                         case 'dropDown':
@@ -109,7 +121,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                                 $format = $generator->generateColumnFormat($column);
                                 echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
                                 break;
-                    }
+                    }}
                 }
             }
         }

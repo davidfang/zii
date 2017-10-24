@@ -76,6 +76,7 @@
        ```json
             {
                 "attribute": "created_by",
+                "table":"user",
                 "target": "username"
             }
         ```
@@ -85,6 +86,7 @@
        ```json
             {
                 "attribute": "updated_by",
+                "table":"user",
                 "target": "username"
             }
         ```
