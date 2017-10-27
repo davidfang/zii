@@ -50,6 +50,10 @@ if(!empty($columnOptions)) {
             echo "    public \${$key}_{$params['target']};\n";
             $tableColumnOptionRule .= "'{$key}_{$params['target']}',";
         }
+        if($columnOption['type'] == 'createdAt' || $columnOption['type'] == 'updatedAt'){
+            echo "    public \$".\yii\helpers\Inflector::variablize($key).";\n";
+            $tableColumnOptionRule .= "'".\yii\helpers\Inflector::variablize($key)."',";
+        }
     }
     if($tableColumnOptionRule != ''){
         $rules[] = '[['.$tableColumnOptionRule ."], 'safe']";
@@ -144,6 +148,15 @@ if(!empty($columnOptions)) {
             $query->andFilterWhere(['like', '<?=\yii\helpers\Inflector::variablize($key.'_'.$params['table'])?>.<?=$params['target']?>', $this-><?=$key.'_'.$params['target']?>]) ;//<=====加入这句
 <?php
         }
+        if ($columnOption['type'] == 'createdAt' || $columnOption['type'] == 'updatedAt') {?>
+
+        if (!empty($this-><?=\yii\helpers\Inflector::variablize($key)?>)) {
+            $query->andFilterCompare(static::tableName().'.<?=$key?>', strtotime(explode('/', $this-><?=\yii\helpers\Inflector::variablize($key)?>)[0]), '>=');//起始时间
+            $query->andFilterCompare(static::tableName().'.<?=$key?>', (strtotime(explode('/', $this-><?=\yii\helpers\Inflector::variablize($key)?>)[1]) + 86400), '<');//结束时间
+        }
+
+<?php   }
+
     }
 }
 ?>

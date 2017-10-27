@@ -29,7 +29,7 @@ use trntv\filekit\behaviors\UploadBehavior;
     $TimestampBehavior = false;
     $BlameableBehavior = false;
     foreach ($tableColumnOptions as $columnKey => $columnOption) {
-        if($columnOption['type'] == 'createAt' || $columnOption['type'] == 'updateAt'){
+        if($columnOption['type'] == 'createdAt' || $columnOption['type'] == 'updatedAt'){
             $TimestampBehavior = true;
         }
         if($columnOption['type'] == 'createdBy' || $columnOption['type'] == 'updatedBy'){
@@ -168,7 +168,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     $TimestampBehavior = false;
     $BlameableBehavior = false;
     foreach ($tableColumnOptions as $columnKey => $columnOption) {
-        if($columnOption['type'] == 'createAt' ){?>
+        if($columnOption['type'] == 'createdAt' ){?>
             [
                  'class' => TimestampBehavior::className(),
                  //'createdAtAttribute' => '<?=$columnKey?>',
@@ -177,7 +177,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
                  ],
              ],
 <?php        }
-        if( $columnOption['type'] == 'updateAt'){?>
+        if( $columnOption['type'] == 'updatedAt'){?>
             [
                 'class' => TimestampBehavior::className(),
                 //'updatedAtAttribute' => '<?=$columnKey?>',

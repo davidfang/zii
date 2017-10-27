@@ -294,8 +294,8 @@ class Generator extends \yii\gii\Generator
                             break;
                         case 'date':
 
-                        case 'createAt':
-                        case 'updateAt':
+                        case 'createdAt':
+                        case 'updatedAt':
                         case 'createdBy':
                         case 'updatedBy':
                         case 'hide':

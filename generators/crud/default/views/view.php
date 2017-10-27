@@ -99,8 +99,8 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                 }
             ],
 <?php                           break;
-                            case 'createAt':
-                            case 'updateAt':
+                            case 'createdAt':
+                            case 'updatedAt':
                                 echo "            '" . $column->name .  ":datetime"  . "',\n";
                                 break;
                             case 'createdBy':

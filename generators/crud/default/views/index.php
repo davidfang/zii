@@ -108,10 +108,27 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
                 }
             ],
 <?php                       break;
-                        case 'date':
-                        case 'createAt':
-                        case 'updateAt':
-                            echo "            '" . $column->name .  ":datetime"  . "',\n";
+                        //case 'date':
+                        case 'createdAt':
+
+                        case 'updatedAt':?>
+            [
+                'attribute' => '<?=$column->name?>',
+                'format' => ['date', "php:Y-m-d H:i:s"],
+                'headerOptions' => ['width' => '12%'],
+                'filter' => kartik\daterange\DateRangePicker::widget([
+                    'name' => '<?=!empty($generator->searchModelClass) ? Inflector::id2camel(StringHelper::basename($generator->searchModelClass)) : '_search'?>[<?=Inflector::variablize($column->name)?>]',
+                    'value' => Yii::$app->request->get('<?=!empty($generator->searchModelClass) ? Inflector::id2camel(StringHelper::basename($generator->searchModelClass)) : '_search'?>')['<?=Inflector::variablize($column->name)?>'],
+                    'convertFormat' => true,
+                    'pluginOptions' => [
+                        'locale' => [
+                            'format' => 'Y-m-d',
+                            'separator' => '/',
+                        ]
+                    ]
+                ])
+            ],
+<?php                            //echo "            '" . $column->name .  ":datetime"  . "',\n";
                             break;
                         case 'createdBy':
                         case 'updatedBy':
