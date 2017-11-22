@@ -12,6 +12,6 @@ echo $form->field($generator, 'baseControllerClass');
     'grid' => 'GridView',
     'list' => 'ListView',
 ]);*/
-echo $form->field($generator, 'enableI18N')->checkbox();
+echo $form->field($generator, 'enableLinkable')->checkbox();
 //echo $form->field($generator, 'enablePjax')->checkbox();
-echo $form->field($generator, 'messageCategory');
+//echo $form->field($generator, 'messageCategory');

@@ -43,7 +43,10 @@ class Generator extends \yii\gii\Generator
      * @since 2.0.5
      */
     //public $enablePjax = false;
-
+    /**
+     * @var bool whether the strings will be generated using `yii\web\Linkable ` .
+     */
+    public $enableLinkable = false;
 
     /**
      * @inheritdoc
@@ -79,7 +82,7 @@ class Generator extends \yii\gii\Generator
             [['controllerClass', 'resourcesClass'], 'validateNewClass'],
             [['indexWidgetType'], 'in', 'range' => ['grid', 'list']],
             [['modelClass'], 'validateModelClass'],
-            [['enableI18N'], 'boolean'],
+            [['enableLinkable'], 'boolean'],
             //[['enableI18N', 'enablePjax'], 'boolean'],
             [['messageCategory'], 'validateMessageCategory', 'skipOnEmpty' => false],
             //['viewPath', 'safe'],
@@ -99,6 +102,7 @@ class Generator extends \yii\gii\Generator
             'indexWidgetType' => 'Widget Used in Index Page',
             'resourcesClass' => 'Resources Class',
             //'enablePjax' => 'Enable Pjax',
+            'enableLinkable' => 'Enable Linkable',
         ]);
     }
 
@@ -126,6 +130,9 @@ class Generator extends \yii\gii\Generator
             /*'enablePjax' => 'This indicates whether the generator should wrap the <code>GridView</code> or <code>ListView</code>
                 widget on the index page with <code>yii\widgets\Pjax</code> widget. Set this to <code>true</code> if you want to get
                 sorting, filtering and pagination without page refreshing.',*/
+            'enableLinkable' => '<code>HATEOAS</code>, 是Hypermedia as the Engine of Application State的缩写, 提升RESTful API 应返回允许终端用户访问的资源操作的信息， HATEOAS 的目的是在API中返回包含相关链接信息的资源数据。
+
+资源类通过实现<code>yii\web\Linkable </code>接口来支持HATEOAS， 该接口包含方法 <code>getLinks()</code> 来返回 links 列表，典型情况下应返回包含代表本资源对象URL的 self 链接'
         ]);
     }
 
@@ -142,7 +149,7 @@ class Generator extends \yii\gii\Generator
      */
     public function stickyAttributes()
     {
-        return array_merge(parent::stickyAttributes(), ['baseControllerClass', 'indexWidgetType']);
+        return array_merge(parent::stickyAttributes(), ['baseControllerClass', 'indexWidgetType','enableLinkable']);
     }
 
     /**
@@ -174,7 +181,7 @@ class Generator extends \yii\gii\Generator
             $files[] = new CodeFile($searchModel, $this->render('resource.php'));
         }
 
-        
+
 
         return $files;
     }
