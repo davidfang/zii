@@ -6,7 +6,7 @@
  */
 
 namespace yii\gii;
-
+error_reporting(E_ALL^E_NOTICE);
 use Yii;
 use yii\base\BootstrapInterface;
 use yii\helpers\Json;
